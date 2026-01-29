@@ -107,8 +107,16 @@ fi
 # Bundled AWS-LC
 /opt/haproxy-ssl
 
-# HAProxy binary
+# HAProxy binaries
 %{_sbindir}/haproxy
+%{_sbindir}/haproxy-dump-certs
+%{_sbindir}/haproxy-reload
+
+# Documentation
+%doc /usr/doc/haproxy
+
+# Man pages
+%{_mandir}/man1/haproxy.1*
 
 # Systemd service
 %{_unitdir}/haproxy.service
