@@ -1,0 +1,105 @@
+%define haproxy_version %{?haproxy_version}%{!?haproxy_version:3.3.1}
+%define awslc_version %{?awslc_version}%{!?awslc_version:1.66.0}
+
+Name:           haproxy-quic
+Version:        %{haproxy_version}
+Release:        1%{?dist}
+Summary:        HAProxy with native QUIC/HTTP3 support (AWS-LC %{awslc_version})
+
+License:        GPLv2+ and ISC
+URL:            https://www.haproxy.org/
+Vendor:         Custom Build
+
+# Don't try to find dependencies in bundled AWS-LC
+AutoReqProv:    no
+
+Requires:       systemd
+Requires:       lua-libs
+Requires:       pcre2
+Requires:       zlib
+
+Provides:       haproxy = %{haproxy_version}
+Conflicts:      haproxy
+
+%description
+HAProxy %{haproxy_version} compiled with AWS-LC %{awslc_version} for native 
+QUIC/HTTP3 support. This package includes a bundled AWS-LC installation at 
+/opt/haproxy-ssl to avoid conflicts with system OpenSSL.
+
+AWS-LC provides significantly better performance than OpenSSL 3.x:
+- ~50%% faster than OpenSSL 1.1.1 for TLS resumption
+- 6-9x faster than OpenSSL 3.x in multi-threaded scenarios
+- Linear scalability across all CPU cores (no lock contention)
+- Built with C11 atomics for optimal performance
+
+Features:
+- Native QUIC/HTTP3 support
+- Prometheus metrics exporter
+- Lua scripting support
+- PCRE2 regex support
+- zlib compression
+- systemd integration
+
+%prep
+# Nothing to do - files are already in BUILDROOT
+
+%build
+# Nothing to do - already built
+
+%install
+# Nothing to do - files are already in BUILDROOT
+
+%pre
+# Create haproxy user/group if they don't exist
+getent group haproxy >/dev/null || groupadd -r haproxy
+getent passwd haproxy >/dev/null || \
+    useradd -r -g haproxy -d /var/lib/haproxy -s /sbin/nologin \
+    -c "HAProxy Load Balancer" haproxy
+exit 0
+
+%post
+%systemd_post haproxy.service
+echo ""
+echo "============================================"
+echo " HAProxy %{haproxy_version} with QUIC installed!"
+echo " (using AWS-LC %{awslc_version})"
+echo "============================================"
+echo ""
+echo "Verify QUIC support:"
+echo "  haproxy -vv | grep QUIC"
+echo ""
+echo "Don't forget to open UDP 443 for QUIC:"
+echo "  firewall-cmd --permanent --add-port=443/udp"
+echo "  firewall-cmd --reload"
+echo ""
+
+%preun
+%systemd_preun haproxy.service
+
+%postun
+%systemd_postun_with_restart haproxy.service
+
+%files
+# Bundled AWS-LC
+/opt/haproxy-ssl
+
+# HAProxy binary
+%{_sbindir}/haproxy
+
+# Systemd service
+%{_unitdir}/haproxy.service
+
+# Configuration directories
+%dir %{_sysconfdir}/haproxy
+%dir %{_sysconfdir}/haproxy/conf.d
+
+# State directory
+%dir %attr(750,haproxy,haproxy) %{_localstatedir}/lib/haproxy
+
+%changelog
+* %(date "+%a %b %d %Y") Automated Build <noreply@github.com> - %{haproxy_version}-1
+- HAProxy %{haproxy_version} with AWS-LC %{awslc_version}
+- Native QUIC/HTTP3 support
+- Built with CMAKE_C_STANDARD=11 for optimal performance
+- Prometheus exporter enabled
+- Lua scripting enabled
