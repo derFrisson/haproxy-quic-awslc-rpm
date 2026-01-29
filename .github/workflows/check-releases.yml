@@ -142,5 +142,4 @@ jobs:
     with:
       haproxy_version: ${{ needs.check-releases.outputs.haproxy_version }}
       awslc_version: ${{ needs.check-releases.outputs.awslc_version }}
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # GITHUB_TOKEN is automatically available to called workflows

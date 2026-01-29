@@ -9,9 +9,7 @@ on:
       awslc_version:
         required: true
         type: string
-    secrets:
-      GITHUB_TOKEN:
-        required: true
+    # Note: GITHUB_TOKEN is automatically available to called workflows
   workflow_dispatch:
     inputs:
       haproxy_version:
