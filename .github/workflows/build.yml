@@ -240,33 +240,34 @@ jobs:
           echo ""
           echo "All build verifications passed!"
 
-      - name: Create RPM structure
+      - name: Create RPM staging structure
         run: |
           set -euo pipefail
 
           echo "==========================================="
-          echo "Creating RPM package structure"
+          echo "Creating RPM staging structure"
           echo "==========================================="
 
-          PKG_DIR=~/rpmbuild/BUILDROOT/haproxy-quic-${HAPROXY_VERSION}-1.el10.x86_64
-          mkdir -p ${PKG_DIR}
+          # Use staging directory - rpmbuild will copy to BUILDROOT via %install
+          STAGING_DIR=/tmp/haproxy-staging
+          mkdir -p ${STAGING_DIR}
 
           # Copy AWS-LC
-          cp -a /tmp/awslc-install/* ${PKG_DIR}/
+          cp -a /tmp/awslc-install/* ${STAGING_DIR}/
 
           # Copy HAProxy
-          cp -a /tmp/haproxy-install/* ${PKG_DIR}/
+          cp -a /tmp/haproxy-install/* ${STAGING_DIR}/
 
           # Create required directories
-          mkdir -p ${PKG_DIR}/etc/haproxy/conf.d
-          mkdir -p ${PKG_DIR}/var/lib/haproxy
-          mkdir -p ${PKG_DIR}/usr/lib/systemd/system
+          mkdir -p ${STAGING_DIR}/etc/haproxy/conf.d
+          mkdir -p ${STAGING_DIR}/var/lib/haproxy
+          mkdir -p ${STAGING_DIR}/usr/lib/systemd/system
 
           # Copy systemd service
-          cp ~/rpmbuild/SOURCES/haproxy.service ${PKG_DIR}/usr/lib/systemd/system/
+          cp ~/rpmbuild/SOURCES/haproxy.service ${STAGING_DIR}/usr/lib/systemd/system/
 
-          echo "Package structure:"
-          find ${PKG_DIR} -type f | head -30 || true
+          echo "Staging structure:"
+          find ${STAGING_DIR} -type f | head -30 || true
 
       - name: Copy spec file
         run: |
@@ -287,8 +288,7 @@ jobs:
             --define "_topdir $HOME/rpmbuild" \
             --define "haproxy_version ${HAPROXY_VERSION}" \
             --define "awslc_version ${AWSLC_VERSION}" \
-            --define "build_date ${BUILD_DATE}" \
-            --buildroot ~/rpmbuild/BUILDROOT/haproxy-quic-${HAPROXY_VERSION}-1.el10.x86_64
+            --define "build_date ${BUILD_DATE}"
 
           echo ""
           echo "Built packages:"

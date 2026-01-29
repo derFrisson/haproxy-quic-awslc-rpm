@@ -46,13 +46,14 @@ Features:
 - systemd integration
 
 %prep
-# Nothing to do - files are already in BUILDROOT
+# Nothing to do - using pre-built binaries
 
 %build
-# Nothing to do - already built
+# Nothing to do - already built externally
 
 %install
-# Nothing to do - files are already in BUILDROOT
+# Copy pre-built files from staging directory to buildroot
+cp -a /tmp/haproxy-staging/* %{buildroot}/
 
 %pre
 # Create haproxy user/group if they don't exist
