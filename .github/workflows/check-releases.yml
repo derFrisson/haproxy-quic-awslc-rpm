@@ -1,0 +1,125 @@
+name: Check for New Releases
+
+on:
+  schedule:
+    # Run every Sunday at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  check-releases:
+    runs-on: ubuntu-latest
+    outputs:
+      haproxy_new: ${{ steps.check.outputs.haproxy_new }}
+      haproxy_version: ${{ steps.check.outputs.haproxy_version }}
+      awslc_new: ${{ steps.check.outputs.awslc_new }}
+      awslc_version: ${{ steps.check.outputs.awslc_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for new releases
+        id: check
+        run: |
+          echo "Checking for new releases..."
+          
+          # Get current versions from versions.json
+          CURRENT_HAPROXY=$(jq -r '.haproxy.current' versions.json)
+          CURRENT_AWSLC=$(jq -r '.awslc.current' versions.json)
+          
+          echo "Current versions:"
+          echo "  HAProxy: ${CURRENT_HAPROXY}"
+          echo "  AWS-LC: ${CURRENT_AWSLC}"
+          
+          # ===== Check HAProxy =====
+          echo ""
+          echo "Checking HAProxy releases..."
+          
+          # Get the latest stable HAProxy version by checking branches
+          LATEST_HAPROXY=""
+          for MINOR in 3.4 3.3 3.2 3.1 3.0 2.9 2.8; do
+            echo "  Checking branch ${MINOR}..."
+            
+            # List versions in this branch
+            VERSIONS=$(curl -s "https://www.haproxy.org/download/${MINOR}/src/" | \
+              grep -oP 'haproxy-\K[0-9]+\.[0-9]+\.[0-9]+(?=\.tar\.gz)' | \
+              sort -V | tail -1)
+            
+            if [ -n "$VERSIONS" ]; then
+              # Check if this is a dev-only branch
+              DEV_CHECK=$(curl -s "https://www.haproxy.org/download/${MINOR}/src/" | \
+                grep -oP 'haproxy-[0-9]+\.[0-9]+\.[0-9]+(?!-dev)\.tar\.gz' | head -1)
+              
+              if [ -n "$DEV_CHECK" ]; then
+                LATEST_HAPROXY=$VERSIONS
+                echo "  Found stable release: ${LATEST_HAPROXY}"
+                break
+              else
+                echo "  Branch ${MINOR} only has dev releases, skipping..."
+              fi
+            fi
+          done
+          
+          if [ -z "$LATEST_HAPROXY" ]; then
+            echo "ERROR: Could not determine latest HAProxy version"
+            LATEST_HAPROXY=$CURRENT_HAPROXY
+          fi
+          
+          # ===== Check AWS-LC =====
+          echo ""
+          echo "Checking AWS-LC releases..."
+          
+          LATEST_AWSLC=$(curl -s "https://api.github.com/repos/aws/aws-lc/releases/latest" | \
+            jq -r '.tag_name' | sed 's/^v//')
+          
+          if [ -z "$LATEST_AWSLC" ] || [ "$LATEST_AWSLC" = "null" ]; then
+            echo "ERROR: Could not determine latest AWS-LC version"
+            LATEST_AWSLC=$CURRENT_AWSLC
+          fi
+          
+          echo "Latest AWS-LC: ${LATEST_AWSLC}"
+          
+          # ===== Compare versions =====
+          echo ""
+          echo "Version comparison:"
+          echo "  HAProxy: ${CURRENT_HAPROXY} -> ${LATEST_HAPROXY}"
+          echo "  AWS-LC:  ${CURRENT_AWSLC} -> ${LATEST_AWSLC}"
+          
+          # Check if updates are needed
+          HAPROXY_NEW="false"
+          AWSLC_NEW="false"
+          
+          if [ "$CURRENT_HAPROXY" != "$LATEST_HAPROXY" ]; then
+            echo "  -> HAProxy update available!"
+            HAPROXY_NEW="true"
+          fi
+          
+          if [ "$CURRENT_AWSLC" != "$LATEST_AWSLC" ]; then
+            echo "  -> AWS-LC update available!"
+            AWSLC_NEW="true"
+          fi
+          
+          # Set outputs
+          echo "haproxy_new=${HAPROXY_NEW}" >> $GITHUB_OUTPUT
+          echo "haproxy_version=${LATEST_HAPROXY}" >> $GITHUB_OUTPUT
+          echo "awslc_new=${AWSLC_NEW}" >> $GITHUB_OUTPUT
+          echo "awslc_version=${LATEST_AWSLC}" >> $GITHUB_OUTPUT
+
+      - name: Summary
+        run: |
+          echo "## Release Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Current | Latest | Update? |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|---------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| HAProxy | $(jq -r '.haproxy.current' versions.json) | ${{ steps.check.outputs.haproxy_version }} | ${{ steps.check.outputs.haproxy_new }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| AWS-LC | $(jq -r '.awslc.current' versions.json) | ${{ steps.check.outputs.awslc_version }} | ${{ steps.check.outputs.awslc_new }} |" >> $GITHUB_STEP_SUMMARY
+
+  trigger-build:
+    needs: check-releases
+    if: needs.check-releases.outputs.haproxy_new == 'true' || needs.check-releases.outputs.awslc_new == 'true'
+    uses: ./.github/workflows/build.yml
+    with:
+      haproxy_version: ${{ needs.check-releases.outputs.haproxy_version }}
+      awslc_version: ${{ needs.check-releases.outputs.awslc_version }}
+    secrets: inherit
