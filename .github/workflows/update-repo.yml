@@ -1,0 +1,110 @@
+name: Update DNF Repository
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  update-repo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Install createrepo
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y createrepo-c
+
+      - name: Download latest release RPMs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p packages/el10/x86_64
+
+          # Download all RPMs from the latest release
+          gh release download --pattern '*.rpm' --dir packages/el10/x86_64 || true
+
+          # Also keep previous versions (optional - for version history)
+          # Only keep last 3 versions to save space
+          cd packages/el10/x86_64
+          ls -t *.rpm 2>/dev/null | tail -n +4 | xargs -r rm -f
+
+          echo "RPMs in repository:"
+          ls -la
+
+      - name: Create repository metadata
+        run: |
+          cd packages/el10/x86_64
+          createrepo_c --update .
+
+          echo "Repository metadata created:"
+          ls -la repodata/
+
+      - name: Create repo file for users
+        run: |
+          cat > packages/haproxy-quic.repo << 'EOF'
+          [haproxy-quic]
+          name=HAProxy QUIC with AWS-LC
+          baseurl=https://derFrisson.github.io/haproxy-quic-awslc-rpm/packages/el10/x86_64/
+          enabled=1
+          gpgcheck=0
+          EOF
+
+          echo "Repo file created:"
+          cat packages/haproxy-quic.repo
+
+      - name: Create index page
+        run: |
+          cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>HAProxy QUIC RPM Repository</title>
+            <style>
+              body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+              pre { background: #f4f4f4; padding: 15px; overflow-x: auto; }
+              code { background: #f4f4f4; padding: 2px 6px; }
+            </style>
+          </head>
+          <body>
+            <h1>HAProxy QUIC RPM Repository</h1>
+            <p>HAProxy with native QUIC/HTTP3 support using AWS-LC.</p>
+
+            <h2>Quick Install</h2>
+            <pre>
+          # Add repository
+          sudo curl -o /etc/yum.repos.d/haproxy-quic.repo \
+            https://derFrisson.github.io/haproxy-quic-awslc-rpm/packages/haproxy-quic.repo
+
+          # Install HAProxy
+          sudo dnf install haproxy-quic
+
+          # Verify
+          haproxy -vv | grep QUIC
+            </pre>
+
+            <h2>Repository URL</h2>
+            <p><code>https://derFrisson.github.io/haproxy-quic-awslc-rpm/packages/el10/x86_64/</code></p>
+
+            <h2>More Info</h2>
+            <p><a href="https://github.com/derFrisson/haproxy-quic-awslc-rpm">GitHub Repository</a></p>
+          </body>
+          </html>
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Update repository - $(date -u +%Y-%m-%d)" || echo "No changes"
+          git push
