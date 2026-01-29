@@ -97,14 +97,24 @@ This repository automatically checks for new HAProxy and AWS-LC releases every S
 
 | Component | Current | Check Source |
 |-----------|---------|--------------|
-| HAProxy | See [versions.json](versions.json) | haproxy.org |
-| AWS-LC | See [versions.json](versions.json) | GitHub API |
+| HAProxy | See [versions.json](versions.json) | [haproxy.org](https://www.haproxy.org/download/) (dynamic branch discovery) |
+| AWS-LC | See [versions.json](versions.json) | [GitHub Releases](https://github.com/aws/aws-lc/releases) |
+
+### Update Script
+
+For existing installations, use the update script:
+
+```bash
+curl -LO https://raw.githubusercontent.com/derFrisson/haproxy-quic-awslc-rpm/main/scripts/update-haproxy.sh
+chmod +x update-haproxy.sh
+./update-haproxy.sh
+```
 
 ## Manual Build Trigger
 
 1. Go to **Actions** → **Build HAProxy QUIC RPM**
 2. Click **Run workflow**
-3. Enter desired versions
+3. Enter desired HAProxy and AWS-LC versions
 4. Click **Run workflow**
 
 ## Build Details
