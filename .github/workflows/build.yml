@@ -284,7 +284,8 @@ jobs:
           # Get current date for changelog
           BUILD_DATE=$(date "+%a %b %d %Y")
 
-          rpmbuild -bb ~/rpmbuild/SPECS/haproxy.spec \
+          # QA_RPATHS: Allow non-standard RPATH for bundled AWS-LC in /opt
+          QA_RPATHS=$((0x0001|0x0010)) rpmbuild -bb ~/rpmbuild/SPECS/haproxy.spec \
             --define "_topdir $HOME/rpmbuild" \
             --define "haproxy_version ${HAPROXY_VERSION}" \
             --define "awslc_version ${AWSLC_VERSION}" \
