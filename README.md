@@ -14,7 +14,7 @@ Based on [HAProxy's comprehensive SSL stack analysis](https://www.haproxy.com/bl
 | TLS Resumption (64 threads) | 183,000 conn/s | 124,000 conn/s | 8,000-28,000 conn/s |
 | Full Handshake (64 threads) | 63,000 conn/s | 48,000 conn/s | 21,000-42,500 conn/s |
 | Multi-threaded Scaling | Linear | Degrades at 40+ threads | Collapses at 2-16 threads |
-| QUIC Support | ✅ Native (BoringSSL API) | ❌ Requires QuicTLS patches | ❌ Incompatible API |
+| QUIC Support | Native (BoringSSL API) | Requires QuicTLS patches | Incompatible API |
 
 **Key Benefits:**
 - **~50% faster** than OpenSSL 1.1.1 for TLS resumption
@@ -54,21 +54,23 @@ sudo firewall-cmd --reload
 
 ## Features
 
-- ✅ **Native QUIC/HTTP3** - Full protocol support without patches
-- ✅ **AWS-LC crypto** - High-performance cryptographic library
-- ✅ **C11 atomics** - Built with `CMAKE_C_STANDARD=11` for optimal locking
-- ✅ **Prometheus metrics** - Built-in `/metrics` endpoint
-- ✅ **Lua scripting** - Full Lua 5.4 support
-- ✅ **PCRE2 regex** - Modern regex engine
-- ✅ **systemd integration** - Native service management
+- **Native QUIC/HTTP3** - Full protocol support without patches
+- **AWS-LC crypto** - High-performance cryptographic library
+- **C11 atomics** - Built with `CMAKE_C_STANDARD=11` for optimal performance
+- **Prometheus metrics** - Built-in `/metrics` endpoint
+- **Lua scripting** - Full Lua 5.4 support
+- **PCRE2 regex** - Modern regex engine
+- **systemd integration** - Native service management
 
 ## Example HAProxy Configuration (HTTP/3)
+
+Create `/etc/haproxy/haproxy.cfg`:
 
 ```haproxy
 global
     log stdout format raw local0
     maxconn 50000
-    
+
 defaults
     mode http
     log global
@@ -79,10 +81,10 @@ defaults
 frontend https
     bind :443 ssl crt /etc/haproxy/certs/site.pem alpn h2,http/1.1
     bind quic4@:443 ssl crt /etc/haproxy/certs/site.pem alpn h3
-    
+
     # Advertise HTTP/3 support
     http-response add-header alt-svc 'h3=":443"; ma=86400'
-    
+
     default_backend servers
 
 backend servers
