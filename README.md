@@ -25,7 +25,28 @@ Based on [HAProxy's comprehensive SSL stack analysis](https://www.haproxy.com/bl
 
 ## Quick Start
 
-### Installation
+### Option 1: DNF Repository (Recommended)
+
+Add the repository for automatic updates via `dnf`:
+
+```bash
+# Add repository
+sudo curl -o /etc/yum.repos.d/haproxy-quic.repo \
+  https://derFrisson.github.io/haproxy-quic-awslc-rpm/packages/haproxy-quic.repo
+
+# Install HAProxy
+sudo dnf install haproxy-quic
+
+# Verify QUIC support
+haproxy -vv | grep -E "(QUIC|AWS-LC)"
+
+# Enable and start
+sudo systemctl enable --now haproxy
+```
+
+Updates will be available automatically via `dnf update`.
+
+### Option 2: Manual Download
 
 ```bash
 # Download latest release (check releases page for current version)
