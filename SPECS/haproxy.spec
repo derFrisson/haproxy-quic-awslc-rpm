@@ -1,6 +1,6 @@
-%define haproxy_version %{?haproxy_version}%{!?haproxy_version:3.3.1}
-%define awslc_version %{?awslc_version}%{!?awslc_version:1.66.0}
-%define build_date %{?build_date}%{!?build_date:%(date "+%a %b %d %Y")}
+%{!?haproxy_version: %global haproxy_version 3.3.1}
+%{!?awslc_version: %global awslc_version 1.66.0}
+%{!?build_date: %global build_date %(date "+%a %b %d %Y")}
 
 Name:           haproxy-quic
 Version:        %{haproxy_version}
