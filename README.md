@@ -29,7 +29,7 @@ Based on [HAProxy's comprehensive SSL stack analysis](https://www.haproxy.com/bl
 
 ```bash
 # Download latest release (check releases page for current version)
-curl -LO https://github.com/derFrisson/haproxy-quic-awslc-rpm/releases/latest/download/haproxy-quic-3.3.2-1.el9.x86_64.rpm
+curl -LO https://github.com/derFrisson/haproxy-quic-awslc-rpm/releases/latest/download/haproxy-quic-3.3.2-1.el10.x86_64.rpm
 
 # Or browse all releases
 # https://github.com/derFrisson/haproxy-quic-awslc-rpm/releases
@@ -137,7 +137,7 @@ chmod +x update-haproxy.sh
 
 ### Target Platform
 
-- Rocky Linux 9 / RHEL 9 / AlmaLinux 9
+- Rocky Linux 10 / RHEL 10 / AlmaLinux 10
 - x86_64 architecture
 
 ## Performance Notes

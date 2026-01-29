@@ -378,7 +378,7 @@ jobs:
             |-----------|---------|
             | HAProxy | ${{ inputs.haproxy_version }} |
             | AWS-LC | ${{ inputs.awslc_version }} |
-            | Target OS | Rocky Linux 9 / RHEL 9 / AlmaLinux 9 |
+            | Target OS | Rocky Linux 10 / RHEL 10 / AlmaLinux 10 |
 
             ### Why AWS-LC instead of OpenSSL?
 
@@ -403,7 +403,7 @@ jobs:
 
             ```bash
             # Download and install
-            curl -LO https://github.com/${{ github.repository }}/releases/download/haproxy-${{ inputs.haproxy_version }}-awslc${{ inputs.awslc_version }}/haproxy-quic-${{ inputs.haproxy_version }}-1.el9.x86_64.rpm
+            curl -LO https://github.com/${{ github.repository }}/releases/download/haproxy-${{ inputs.haproxy_version }}-awslc${{ inputs.awslc_version }}/haproxy-quic-${{ inputs.haproxy_version }}-1.el10.x86_64.rpm
             sudo dnf localinstall -y haproxy-quic-*.rpm
 
             # Verify QUIC support

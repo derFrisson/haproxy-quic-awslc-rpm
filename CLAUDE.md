@@ -10,7 +10,7 @@ This repository builds HAProxy RPM packages with native QUIC/HTTP3 support using
 
 ```
 ├── .github/workflows/
-│   ├── build.yml           # Main build workflow (Rocky Linux 9 container)
+│   ├── build.yml           # Main build workflow (Rocky Linux 10 container)
 │   └── check-releases.yml  # Weekly check for new HAProxy/AWS-LC releases
 ├── SOURCES/
 │   └── haproxy.service     # systemd unit file included in RPM
@@ -23,7 +23,7 @@ This repository builds HAProxy RPM packages with native QUIC/HTTP3 support using
 
 ## Build Architecture
 
-The build workflow (`build.yml`) performs these steps in a Rocky Linux 9 container:
+The build workflow (`build.yml`) performs these steps in a Rocky Linux 10 container:
 
 1. **Download and verify sources** - Downloads with retry logic, verifies SHA256 checksums when available
 2. **Build AWS-LC** with `CMAKE_C_STANDARD=11` (critical for atomic ops - see aws/aws-lc#1723)
@@ -64,4 +64,4 @@ The build workflow (`build.yml`) performs these steps in a Rocky Linux 9 contain
 
 ## Target Platform
 
-Rocky Linux 9 / RHEL 9 / AlmaLinux 9 (x86_64)
+Rocky Linux 10 / RHEL 10 / AlmaLinux 10 (x86_64)
