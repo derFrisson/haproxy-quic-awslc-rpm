@@ -2,9 +2,6 @@
 %{!?awslc_version: %global awslc_version 1.66.0}
 %{!?build_date: %global build_date %(date "+%a %b %d %Y")}
 
-# Disable RPATH check - we intentionally use /opt/haproxy-ssl for bundled AWS-LC
-%global __brp_check_rpaths %{nil}
-
 Name:           haproxy-quic
 Version:        %{haproxy_version}
 Release:        1%{?dist}
