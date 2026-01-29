@@ -266,7 +266,7 @@ jobs:
           cp ~/rpmbuild/SOURCES/haproxy.service ${PKG_DIR}/usr/lib/systemd/system/
 
           echo "Package structure:"
-          find ${PKG_DIR} -type f | head -30
+          find ${PKG_DIR} -type f | head -30 || true
 
       - name: Copy spec file
         run: |
