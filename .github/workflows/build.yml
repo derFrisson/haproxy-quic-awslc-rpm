@@ -26,7 +26,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: rockylinux:9
+    container: rockylinux:10
 
     steps:
       - name: Checkout
@@ -248,7 +248,7 @@ jobs:
           echo "Creating RPM package structure"
           echo "==========================================="
 
-          PKG_DIR=~/rpmbuild/BUILDROOT/haproxy-quic-${HAPROXY_VERSION}-1.el9.x86_64
+          PKG_DIR=~/rpmbuild/BUILDROOT/haproxy-quic-${HAPROXY_VERSION}-1.el10.x86_64
           mkdir -p ${PKG_DIR}
 
           # Copy AWS-LC
@@ -288,7 +288,7 @@ jobs:
             --define "haproxy_version ${HAPROXY_VERSION}" \
             --define "awslc_version ${AWSLC_VERSION}" \
             --define "build_date ${BUILD_DATE}" \
-            --buildroot ~/rpmbuild/BUILDROOT/haproxy-quic-${HAPROXY_VERSION}-1.el9.x86_64
+            --buildroot ~/rpmbuild/BUILDROOT/haproxy-quic-${HAPROXY_VERSION}-1.el10.x86_64
 
           echo ""
           echo "Built packages:"
@@ -305,7 +305,7 @@ jobs:
       - name: Upload RPM artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
-          name: haproxy-quic-${{ env.HAPROXY_VERSION }}-awslc${{ env.AWSLC_VERSION }}-el9
+          name: haproxy-quic-${{ env.HAPROXY_VERSION }}-awslc${{ env.AWSLC_VERSION }}-el10
           path: ./artifacts/*.rpm
           retention-days: 90
 
@@ -324,7 +324,7 @@ jobs:
       - name: Download RPM artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
-          name: haproxy-quic-${{ inputs.haproxy_version }}-awslc${{ inputs.awslc_version }}-el9
+          name: haproxy-quic-${{ inputs.haproxy_version }}-awslc${{ inputs.awslc_version }}-el10
           path: ./rpms
 
       - name: List downloaded files
