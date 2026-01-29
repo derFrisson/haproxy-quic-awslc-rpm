@@ -1,6 +1,7 @@
 # HAProxy QUIC RPM (with AWS-LC)
 
-[![Build HAProxy QUIC RPM](https://github.com/YOUR_USERNAME/haproxy-quic-rpm/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR_USERNAME/haproxy-quic-rpm/actions/workflows/build.yml)
+[![Build HAProxy QUIC RPM](https://github.com/derFrisson/haproxy-quic-awslc-rpm/actions/workflows/build.yml/badge.svg)](https://github.com/derFrisson/haproxy-quic-awslc-rpm/actions/workflows/build.yml)
+[![Check Releases](https://github.com/derFrisson/haproxy-quic-awslc-rpm/actions/workflows/check-releases.yml/badge.svg)](https://github.com/derFrisson/haproxy-quic-awslc-rpm/actions/workflows/check-releases.yml)
 
 Automated builds of HAProxy with native QUIC/HTTP3 support using **AWS-LC** instead of OpenSSL.
 
@@ -27,8 +28,11 @@ Based on [HAProxy's comprehensive SSL stack analysis](https://www.haproxy.com/bl
 ### Installation
 
 ```bash
-# Download latest release
-curl -LO https://github.com/YOUR_USERNAME/haproxy-quic-rpm/releases/latest/download/haproxy-quic-3.3.1-1.el9.x86_64.rpm
+# Download latest release (check releases page for current version)
+curl -LO https://github.com/derFrisson/haproxy-quic-awslc-rpm/releases/latest/download/haproxy-quic-3.3.2-1.el9.x86_64.rpm
+
+# Or browse all releases
+# https://github.com/derFrisson/haproxy-quic-awslc-rpm/releases
 
 # Install
 sudo dnf localinstall -y haproxy-quic-*.rpm

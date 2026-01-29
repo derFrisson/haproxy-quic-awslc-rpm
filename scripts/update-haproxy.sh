@@ -4,7 +4,7 @@
 
 set -e
 
-REPO="YOUR_USERNAME/haproxy-quic-rpm"
+REPO="derFrisson/haproxy-quic-awslc-rpm"
 INSTALL_DIR="/tmp/haproxy-update"
 FORCE=${1:-""}
 
