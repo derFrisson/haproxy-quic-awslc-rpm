@@ -17,89 +17,109 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Check for new releases
         id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           echo "Checking for new releases..."
-          
+
           # Get current versions from versions.json
           CURRENT_HAPROXY=$(jq -r '.haproxy.current' versions.json)
           CURRENT_AWSLC=$(jq -r '.awslc.current' versions.json)
-          
+
           echo "Current versions:"
           echo "  HAProxy: ${CURRENT_HAPROXY}"
           echo "  AWS-LC: ${CURRENT_AWSLC}"
-          
+
           # ===== Check HAProxy =====
           echo ""
           echo "Checking HAProxy releases..."
-          
-          # Get the latest stable HAProxy version by checking branches
+
+          # Dynamically discover available branches from haproxy.org
+          echo "  Discovering available branches..."
+          BRANCHES=$(curl -sfS --retry 3 --retry-delay 5 --max-time 30 \
+            "https://www.haproxy.org/download/" | \
+            grep -oP 'href="\K[0-9]+\.[0-9]+(?=/")' | \
+            sort -Vr || true)
+
+          if [ -z "$BRANCHES" ]; then
+            echo "::error::Failed to discover HAProxy branches from haproxy.org"
+            exit 1
+          fi
+
+          echo "  Found branches: $(echo $BRANCHES | tr '\n' ' ')"
+
+          # Find the latest stable release across all branches (newest first)
           LATEST_HAPROXY=""
-          for MINOR in 3.4 3.3 3.2 3.1 3.0 2.9 2.8; do
+          for MINOR in $BRANCHES; do
             echo "  Checking branch ${MINOR}..."
-            
-            # List versions in this branch
-            VERSIONS=$(curl -s "https://www.haproxy.org/download/${MINOR}/src/" | \
+
+            # List stable versions in this branch (exclude -dev releases)
+            VERSIONS=$(curl -sfS --retry 3 --retry-delay 5 --max-time 30 \
+              "https://www.haproxy.org/download/${MINOR}/src/" 2>/dev/null | \
               grep -oP 'haproxy-\K[0-9]+\.[0-9]+\.[0-9]+(?=\.tar\.gz)' | \
-              sort -V | tail -1)
-            
+              grep -v dev | \
+              sort -V | tail -1 || true)
+
             if [ -n "$VERSIONS" ]; then
-              # Check if this is a dev-only branch
-              DEV_CHECK=$(curl -s "https://www.haproxy.org/download/${MINOR}/src/" | \
-                grep -oP 'haproxy-[0-9]+\.[0-9]+\.[0-9]+(?!-dev)\.tar\.gz' | head -1)
-              
-              if [ -n "$DEV_CHECK" ]; then
-                LATEST_HAPROXY=$VERSIONS
-                echo "  Found stable release: ${LATEST_HAPROXY}"
-                break
-              else
-                echo "  Branch ${MINOR} only has dev releases, skipping..."
-              fi
+              LATEST_HAPROXY=$VERSIONS
+              echo "  Found stable release: ${LATEST_HAPROXY}"
+              break
+            else
+              echo "  No stable releases in branch ${MINOR}, trying next..."
             fi
           done
-          
+
           if [ -z "$LATEST_HAPROXY" ]; then
-            echo "ERROR: Could not determine latest HAProxy version"
-            LATEST_HAPROXY=$CURRENT_HAPROXY
+            echo "::error::Failed to determine latest HAProxy version from any branch"
+            exit 1
           fi
-          
+
           # ===== Check AWS-LC =====
           echo ""
           echo "Checking AWS-LC releases..."
-          
-          LATEST_AWSLC=$(curl -s "https://api.github.com/repos/aws/aws-lc/releases/latest" | \
-            jq -r '.tag_name' | sed 's/^v//')
-          
-          if [ -z "$LATEST_AWSLC" ] || [ "$LATEST_AWSLC" = "null" ]; then
-            echo "ERROR: Could not determine latest AWS-LC version"
-            LATEST_AWSLC=$CURRENT_AWSLC
+
+          # Use authenticated request to avoid rate limiting
+          AWSLC_RESPONSE=$(curl -sfS --retry 3 --retry-delay 5 --max-time 30 \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/aws/aws-lc/releases/latest")
+
+          LATEST_AWSLC=$(echo "$AWSLC_RESPONSE" | jq -r '.tag_name // empty' | sed 's/^v//')
+
+          if [ -z "$LATEST_AWSLC" ]; then
+            echo "::error::Failed to determine latest AWS-LC version from GitHub API"
+            echo "API Response: $AWSLC_RESPONSE"
+            exit 1
           fi
-          
+
           echo "Latest AWS-LC: ${LATEST_AWSLC}"
-          
+
           # ===== Compare versions =====
           echo ""
           echo "Version comparison:"
           echo "  HAProxy: ${CURRENT_HAPROXY} -> ${LATEST_HAPROXY}"
           echo "  AWS-LC:  ${CURRENT_AWSLC} -> ${LATEST_AWSLC}"
-          
+
           # Check if updates are needed
           HAPROXY_NEW="false"
           AWSLC_NEW="false"
-          
+
           if [ "$CURRENT_HAPROXY" != "$LATEST_HAPROXY" ]; then
             echo "  -> HAProxy update available!"
             HAPROXY_NEW="true"
           fi
-          
+
           if [ "$CURRENT_AWSLC" != "$LATEST_AWSLC" ]; then
             echo "  -> AWS-LC update available!"
             AWSLC_NEW="true"
           fi
-          
+
           # Set outputs
           echo "haproxy_new=${HAPROXY_NEW}" >> $GITHUB_OUTPUT
           echo "haproxy_version=${LATEST_HAPROXY}" >> $GITHUB_OUTPUT
@@ -122,4 +142,5 @@ jobs:
     with:
       haproxy_version: ${{ needs.check-releases.outputs.haproxy_version }}
       awslc_version: ${{ needs.check-releases.outputs.awslc_version }}
-    secrets: inherit
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

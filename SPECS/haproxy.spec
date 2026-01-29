@@ -1,5 +1,6 @@
 %define haproxy_version %{?haproxy_version}%{!?haproxy_version:3.3.1}
 %define awslc_version %{?awslc_version}%{!?awslc_version:1.66.0}
+%define build_date %{?build_date}%{!?build_date:%(date "+%a %b %d %Y")}
 
 Name:           haproxy-quic
 Version:        %{haproxy_version}
@@ -10,20 +11,24 @@ License:        GPLv2+ and ISC
 URL:            https://www.haproxy.org/
 Vendor:         Custom Build
 
-# Don't try to find dependencies in bundled AWS-LC
-AutoReqProv:    no
+# Disable automatic dependency detection for bundled AWS-LC libraries only
+# This prevents RPM from requiring system OpenSSL while still detecting other deps
+AutoReq:        no
+AutoProv:       no
 
+# Explicit runtime dependencies
 Requires:       systemd
 Requires:       lua-libs
 Requires:       pcre2
 Requires:       zlib
+Requires:       glibc
 
 Provides:       haproxy = %{haproxy_version}
 Conflicts:      haproxy
 
 %description
-HAProxy %{haproxy_version} compiled with AWS-LC %{awslc_version} for native 
-QUIC/HTTP3 support. This package includes a bundled AWS-LC installation at 
+HAProxy %{haproxy_version} compiled with AWS-LC %{awslc_version} for native
+QUIC/HTTP3 support. This package includes a bundled AWS-LC installation at
 /opt/haproxy-ssl to avoid conflicts with system OpenSSL.
 
 AWS-LC provides significantly better performance than OpenSSL 3.x:
@@ -59,6 +64,15 @@ exit 0
 
 %post
 %systemd_post haproxy.service
+
+# Update library cache for bundled AWS-LC
+if [ -d /opt/haproxy-ssl/lib64 ]; then
+    echo "/opt/haproxy-ssl/lib64" > /etc/ld.so.conf.d/haproxy-awslc.conf
+elif [ -d /opt/haproxy-ssl/lib ]; then
+    echo "/opt/haproxy-ssl/lib" > /etc/ld.so.conf.d/haproxy-awslc.conf
+fi
+ldconfig
+
 echo ""
 echo "============================================"
 echo " HAProxy %{haproxy_version} with QUIC installed!"
@@ -72,12 +86,21 @@ echo "Don't forget to open UDP 443 for QUIC:"
 echo "  firewall-cmd --permanent --add-port=443/udp"
 echo "  firewall-cmd --reload"
 echo ""
+echo "Create your configuration at:"
+echo "  /etc/haproxy/haproxy.cfg"
+echo ""
 
 %preun
 %systemd_preun haproxy.service
 
 %postun
 %systemd_postun_with_restart haproxy.service
+
+# Remove library cache entry on uninstall
+if [ $1 -eq 0 ]; then
+    rm -f /etc/ld.so.conf.d/haproxy-awslc.conf
+    ldconfig
+fi
 
 %files
 # Bundled AWS-LC
@@ -97,7 +120,7 @@ echo ""
 %dir %attr(750,haproxy,haproxy) %{_localstatedir}/lib/haproxy
 
 %changelog
-* %(date "+%a %b %d %Y") Automated Build <noreply@github.com> - %{haproxy_version}-1
+* %{build_date} Automated Build <noreply@github.com> - %{haproxy_version}-1
 - HAProxy %{haproxy_version} with AWS-LC %{awslc_version}
 - Native QUIC/HTTP3 support
 - Built with CMAKE_C_STANDARD=11 for optimal performance
