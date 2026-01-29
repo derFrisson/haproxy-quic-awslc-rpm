@@ -146,6 +146,14 @@ This build uses AWS-LC compiled with `CMAKE_C_STANDARD=11`, which is critical fo
 
 See: [aws/aws-lc#1723](https://github.com/aws/aws-lc/issues/1723)
 
+## Security
+
+The CI/CD pipeline includes several security measures:
+- All GitHub Actions pinned to full SHA (not version tags)
+- Source downloads verified with SHA256 checksums when available
+- Build verification fails if QUIC support is missing
+- Explicit secret passing (no `secrets: inherit`)
+
 ## References
 
 - [HAProxy: The State of SSL Stacks](https://www.haproxy.com/blog/state-of-ssl-stacks) - Comprehensive analysis
