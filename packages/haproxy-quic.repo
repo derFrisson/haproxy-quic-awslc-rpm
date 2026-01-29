@@ -1,0 +1,5 @@
+[haproxy-quic]
+name=HAProxy QUIC with AWS-LC
+baseurl=https://derFrisson.github.io/haproxy-quic-awslc-rpm/packages/el10/x86_64/
+enabled=1
+gpgcheck=0

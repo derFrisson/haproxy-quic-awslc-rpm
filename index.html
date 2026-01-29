@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HAProxy QUIC RPM Repository</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+    pre { background: #f4f4f4; padding: 15px; overflow-x: auto; }
+    code { background: #f4f4f4; padding: 2px 6px; }
+  </style>
+</head>
+<body>
+  <h1>HAProxy QUIC RPM Repository</h1>
+  <p>HAProxy with native QUIC/HTTP3 support using AWS-LC.</p>
+
+  <h2>Quick Install</h2>
+  <pre>
+# Add repository
+sudo curl -o /etc/yum.repos.d/haproxy-quic.repo \
+  https://derFrisson.github.io/haproxy-quic-awslc-rpm/packages/haproxy-quic.repo
+
+# Install HAProxy
+sudo dnf install haproxy-quic
+
+# Verify
+haproxy -vv | grep QUIC
+  </pre>
+
+  <h2>Repository URL</h2>
+  <p><code>https://derFrisson.github.io/haproxy-quic-awslc-rpm/packages/el10/x86_64/</code></p>
+
+  <h2>More Info</h2>
+  <p><a href="https://github.com/derFrisson/haproxy-quic-awslc-rpm">GitHub Repository</a></p>
+</body>
+</html>
