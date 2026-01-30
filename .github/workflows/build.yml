@@ -127,14 +127,12 @@ jobs:
           tar xzf aws-lc-${AWSLC_VERSION}.tar.gz
           cd aws-lc-${AWSLC_VERSION}
 
-          # Build with CMake - CRITICAL: Set C11 standard for atomic ops instead of locks!
-          # See: https://github.com/aws/aws-lc/issues/1723
+          # Build AWS-LC
           mkdir -p build && cd build
 
           cmake -GNinja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/opt/haproxy-ssl \
-            -DCMAKE_C_STANDARD=11 \
             -DBUILD_SHARED_LIBS=ON \
             -DBUILD_TESTING=OFF \
             ..
