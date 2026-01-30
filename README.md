@@ -203,6 +203,7 @@ The CI/CD pipeline includes several security measures:
 
 - [HAProxy: The State of SSL Stacks](https://www.haproxy.com/blog/state-of-ssl-stacks) - Comprehensive analysis
 - [AWS-LC GitHub](https://github.com/aws/aws-lc) - Cryptographic library
+- [AWS-LC Performance Optimization](https://github.com/aws/aws-lc/issues/1723) - Multi-threaded performance improvements
 - [HAProxy SSL Libraries Support Status](https://github.com/haproxy/wiki/wiki/SSL-Libraries-Support-Status)
 - [HAProxy QUIC Documentation](https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/#9.4)
 
