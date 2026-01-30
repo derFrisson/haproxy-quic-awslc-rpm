@@ -7,21 +7,14 @@ Automated builds of HAProxy with native QUIC/HTTP3 support using **AWS-LC** inst
 
 ## Why AWS-LC?
 
-Based on [HAProxy's comprehensive SSL stack analysis](https://www.haproxy.com/blog/state-of-ssl-stacks), AWS-LC provides significant performance advantages:
-
-| Metric | AWS-LC | OpenSSL 1.1.1 | OpenSSL 3.x |
-|--------|--------|---------------|-------------|
-| TLS Resumption (64 threads) | 183,000 conn/s | 124,000 conn/s | 8,000-28,000 conn/s |
-| Full Handshake (64 threads) | 63,000 conn/s | 48,000 conn/s | 21,000-42,500 conn/s |
-| Multi-threaded Scaling | Linear | Degrades at 40+ threads | Collapses at 2-16 threads |
-| QUIC Support | Native (BoringSSL API) | Requires QuicTLS patches | Incompatible API |
+Based on [HAProxy's comprehensive SSL stack analysis](https://www.haproxy.com/blog/state-of-ssl-stacks), AWS-LC provides significant performance advantages.
 
 **Key Benefits:**
 - **~50% faster** than OpenSSL 1.1.1 for TLS resumption
 - **6-9x faster** than OpenSSL 3.x in multi-threaded scenarios
 - **Linear scalability** across all CPU cores (no lock contention)
 - **Native QUIC support** via BoringSSL-compatible API
-- **FIPS-capable** (separate FIPS branches available from AWS)
+- **FIPS-capable** (Separate FIPS branches are available from AWS, but these will not be used for these builds)
 
 ## Quick Start
 
@@ -123,7 +116,7 @@ This repository automatically checks for new HAProxy and AWS-LC releases every S
 
 ### Update Script
 
-For existing installations, use the update script:
+For existing installations, use the update script (Separate changes to the HAProxy configuration are most likely needed):
 
 ```bash
 curl -LO https://raw.githubusercontent.com/derFrisson/haproxy-quic-awslc-rpm/main/scripts/update-haproxy.sh
