@@ -84,21 +84,26 @@ jobs:
           echo ""
           echo "Checking AWS-LC releases..."
 
+          # Get releases and filter for standard versions only (exclude FIPS releases)
           # Use authenticated request to avoid rate limiting
           AWSLC_RESPONSE=$(curl -sfS --retry 3 --retry-delay 5 --max-time 30 \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/aws/aws-lc/releases/latest")
+            "https://api.github.com/repos/aws/aws-lc/releases?per_page=20")
 
-          LATEST_AWSLC=$(echo "$AWSLC_RESPONSE" | jq -r '.tag_name // empty' | sed 's/^v//')
+          # Filter for standard releases: tags matching ^v[0-9]+\.[0-9]+\.[0-9]+$
+          # This excludes FIPS releases like AWS-LC-FIPS-NETOS-v1.29.1 or AWS-LC-FIPS-3.1.0
+          LATEST_AWSLC=$(echo "$AWSLC_RESPONSE" | \
+            jq -r '[.[] | select(.tag_name | test("^v[0-9]+\\.[0-9]+\\.[0-9]+$"))] | .[0].tag_name // empty' | \
+            sed 's/^v//')
 
           if [ -z "$LATEST_AWSLC" ]; then
             echo "::error::Failed to determine latest AWS-LC version from GitHub API"
-            echo "API Response: $AWSLC_RESPONSE"
+            echo "API Response (first release): $(echo "$AWSLC_RESPONSE" | jq -r '.[0] // "empty"')"
             exit 1
           fi
 
-          echo "Latest AWS-LC: ${LATEST_AWSLC}"
+          echo "Latest AWS-LC (standard release): ${LATEST_AWSLC}"
 
           # ===== Compare versions =====
           echo ""
