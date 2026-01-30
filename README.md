@@ -116,13 +116,47 @@ This repository automatically checks for new HAProxy and AWS-LC releases every S
 
 ### Update Script
 
-For existing installations, use the update script (Separate changes to the HAProxy configuration are most likely needed):
+For existing installations, use the interactive update script (note: configuration changes may be needed when updating HAProxy versions):
 
 ```bash
+# Download and run the update script
 curl -LO https://raw.githubusercontent.com/derFrisson/haproxy-quic-awslc-rpm/main/scripts/update-haproxy.sh
 chmod +x update-haproxy.sh
 ./update-haproxy.sh
 ```
+
+#### Interactive Mode (Default)
+
+When run without flags, the script will prompt you to choose an installation method:
+
+- **Option 1: DNF Repository** (Recommended) - Sets up automatic updates via `dnf update`
+- **Option 2: Manual Download** - One-time installation from GitHub releases
+
+#### Command-Line Flags
+
+```bash
+# Interactive choice (default)
+./update-haproxy.sh
+
+# Force DNF repository installation
+./update-haproxy.sh --repo
+
+# Force manual download and install
+./update-haproxy.sh --manual
+
+# Force reinstall current version
+./update-haproxy.sh --force
+
+# Combine flags
+./update-haproxy.sh --repo --force
+```
+
+#### Behavior
+
+- **DNF repo already configured**: Automatically uses repository for updates
+- **First-time users**: Prompted to choose installation method
+- **Repository method**: Future updates via `sudo dnf update haproxy-quic`
+- **Manual method**: Run script again to check for new versions
 
 ## Manual Build Trigger
 
