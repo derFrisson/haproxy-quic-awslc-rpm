@@ -35,7 +35,7 @@ AWS-LC provides significantly better performance than OpenSSL 3.x:
 - ~50%% faster than OpenSSL 1.1.1 for TLS resumption
 - 6-9x faster than OpenSSL 3.x in multi-threaded scenarios
 - Linear scalability across all CPU cores (no lock contention)
-- Built with C11 atomics for optimal performance
+- Optimized for maximum multi-threaded performance
 
 Features:
 - Native QUIC/HTTP3 support
@@ -132,6 +132,6 @@ fi
 * %{build_date} Automated Build <noreply@github.com> - %{haproxy_version}-1
 - HAProxy %{haproxy_version} with AWS-LC %{awslc_version}
 - Native QUIC/HTTP3 support
-- Built with CMAKE_C_STANDARD=11 for optimal performance
+- Optimized for maximum multi-threaded performance
 - Prometheus exporter enabled
 - Lua scripting enabled

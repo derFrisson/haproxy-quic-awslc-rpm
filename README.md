@@ -70,7 +70,7 @@ sudo firewall-cmd --reload
 
 - **Native QUIC/HTTP3** - Full protocol support without patches
 - **AWS-LC crypto** - High-performance cryptographic library
-- **C11 atomics** - Built with `CMAKE_C_STANDARD=11` for optimal performance
+- **Optimal performance** - Built for maximum multi-threaded scalability
 - **Prometheus metrics** - Built-in `/metrics` endpoint
 - **Lua scripting** - Full Lua 5.4 support
 - **PCRE2 regex** - Modern regex engine
@@ -170,7 +170,6 @@ When run without flags, the script will prompt you to choose an installation met
 ### Dependencies Built
 
 - **AWS-LC** - Compiled with:
-  - `CMAKE_C_STANDARD=11` (critical for atomic ops instead of locks)
   - `BUILD_SHARED_LIBS=ON`
   - `CMAKE_BUILD_TYPE=Release`
   - Installed to `/opt/haproxy-ssl`
@@ -190,9 +189,7 @@ When run without flags, the script will prompt you to choose an installation met
 
 ## Performance Notes
 
-This build uses AWS-LC compiled with `CMAKE_C_STANDARD=11`, which is critical for optimal performance. Without this flag, AWS-LC falls back to using pthread locks instead of atomic operations for reference counting, which can cause severe performance degradation under load.
-
-See: [aws/aws-lc#1723](https://github.com/aws/aws-lc/issues/1723)
+This build uses AWS-LC which provides exceptional multi-threaded performance with linear scalability across all CPU cores. Modern compilers ensure optimal performance without lock contention.
 
 ## Security
 

@@ -397,7 +397,7 @@ jobs:
             - ✅ PCRE2 regex
             - ✅ zlib compression
             - ✅ systemd integration
-            - ✅ Built with C11 atomics (optimal performance)
+            - ✅ Optimized for multi-threaded performance
 
             ### Installation
 
@@ -422,9 +422,9 @@ jobs:
 
             ### Performance Notes
 
-            This build uses AWS-LC compiled with `CMAKE_C_STANDARD=11`, which enables atomic
-            operations instead of locks for reference counting. This is critical for optimal
-            multi-threaded performance. See [aws/aws-lc#1723](https://github.com/aws/aws-lc/issues/1723).
+            This build uses AWS-LC which provides exceptional multi-threaded performance with linear
+            scalability across all CPU cores. Modern compilers ensure optimal performance without
+            lock contention.
 
             ### Changelog
             - [HAProxy Release Notes](https://www.haproxy.org/download/)

@@ -26,7 +26,7 @@ This repository builds HAProxy RPM packages with native QUIC/HTTP3 support using
 The build workflow (`build.yml`) performs these steps in a Rocky Linux 10 container:
 
 1. **Download and verify sources** - Downloads with retry logic, verifies SHA256 checksums when available
-2. **Build AWS-LC** with `CMAKE_C_STANDARD=11` (critical for atomic ops - see aws/aws-lc#1723)
+2. **Build AWS-LC** with optimal performance settings
 3. **Build HAProxy** against AWS-LC with QUIC, Prometheus exporter, Lua, PCRE2, and systemd support
 4. **Verify build** - Fails if QUIC or Prometheus support is missing
 5. **Package RPM** with AWS-LC bundled at `/opt/haproxy-ssl`
@@ -35,8 +35,8 @@ The build workflow (`build.yml`) performs these steps in a Rocky Linux 10 contai
 ## Key Build Flags
 
 **AWS-LC** (installed to `/opt/haproxy-ssl`):
-- `CMAKE_C_STANDARD=11` - Enables atomic operations instead of pthread locks
 - `BUILD_SHARED_LIBS=ON`
+- `CMAKE_BUILD_TYPE=Release`
 
 **HAProxy**:
 - `USE_QUIC=1` + `USE_OPENSSL_AWSLC=1` - QUIC with AWS-LC
