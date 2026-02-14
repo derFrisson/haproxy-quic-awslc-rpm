@@ -432,3 +432,10 @@ jobs:
           files: ./rpms/*.rpm
           draft: false
           prerelease: false
+
+  update-repo:
+    needs: release
+    permissions:
+      contents: write
+      pages: write
+    uses: ./.github/workflows/update-repo.yml
