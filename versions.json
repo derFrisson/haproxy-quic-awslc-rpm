@@ -1,6 +1,6 @@
 {
   "haproxy": {
-    "current": "3.3.3",
+    "current": "3.3.2",
     "source": "https://www.haproxy.org/download/"
   },
   "awslc": {
