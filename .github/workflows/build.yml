@@ -202,14 +202,16 @@ jobs:
             SSL_LIB_DIR="/tmp/awslc-install/opt/haproxy-ssl/lib"
           fi
 
-          # Get version info
+          # Capture version info once (avoids SIGPIPE issues with pipefail + grep -q)
+          VERSION_OUTPUT=$(LD_LIBRARY_PATH=${SSL_LIB_DIR} /tmp/haproxy-install/usr/sbin/haproxy -vv)
+
           echo "HAProxy version info:"
-          LD_LIBRARY_PATH=${SSL_LIB_DIR} /tmp/haproxy-install/usr/sbin/haproxy -vv
+          echo "${VERSION_OUTPUT}"
 
           # Verify QUIC support is present
           echo ""
           echo "Checking for QUIC support..."
-          if LD_LIBRARY_PATH=${SSL_LIB_DIR} /tmp/haproxy-install/usr/sbin/haproxy -vv | grep -q "QUIC"; then
+          if echo "${VERSION_OUTPUT}" | grep -q "QUIC"; then
             echo "✓ QUIC support verified"
           else
             echo "::error::HAProxy built without QUIC support!"
@@ -219,7 +221,7 @@ jobs:
           # Verify AWS-LC is being used
           echo ""
           echo "Checking for AWS-LC..."
-          if LD_LIBRARY_PATH=${SSL_LIB_DIR} /tmp/haproxy-install/usr/sbin/haproxy -vv | grep -qE "(AWS-LC|aws-lc)"; then
+          if echo "${VERSION_OUTPUT}" | grep -qE "(AWS-LC|aws-lc)"; then
             echo "✓ AWS-LC verified"
           else
             echo "::warning::Could not confirm AWS-LC in version string (may be shown as OpenSSL compatible)"
@@ -228,7 +230,7 @@ jobs:
           # Verify Prometheus exporter
           echo ""
           echo "Checking for Prometheus exporter..."
-          if LD_LIBRARY_PATH=${SSL_LIB_DIR} /tmp/haproxy-install/usr/sbin/haproxy -vv | grep -q "PROMEX"; then
+          if echo "${VERSION_OUTPUT}" | grep -q "PROMEX"; then
             echo "✓ Prometheus exporter verified"
           else
             echo "::error::HAProxy built without Prometheus exporter!"
