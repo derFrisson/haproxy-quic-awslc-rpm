@@ -4,7 +4,7 @@
 
 Name:           haproxy-quic
 Version:        %{haproxy_version}
-Release:        1%{?dist}
+Release:        1.awslc%{awslc_version}%{?dist}
 Summary:        HAProxy with native QUIC/HTTP3 support (AWS-LC %{awslc_version})
 
 License:        GPLv2+ and ISC

@@ -405,7 +405,7 @@ jobs:
 
             ```bash
             # Download and install
-            curl -LO https://github.com/${{ github.repository }}/releases/download/haproxy-${{ inputs.haproxy_version }}-awslc${{ inputs.awslc_version }}/haproxy-quic-${{ inputs.haproxy_version }}-1.el10.x86_64.rpm
+            curl -LO https://github.com/${{ github.repository }}/releases/download/haproxy-${{ inputs.haproxy_version }}-awslc${{ inputs.awslc_version }}/haproxy-quic-${{ inputs.haproxy_version }}-1.awslc${{ inputs.awslc_version }}.el10.x86_64.rpm
             sudo dnf localinstall -y haproxy-quic-*.rpm
 
             # Verify QUIC support
