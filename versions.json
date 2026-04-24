@@ -1,11 +1,11 @@
 {
   "haproxy": {
-    "current": "3.3.6",
+    "current": "3.3.7",
     "source": "https://www.haproxy.org/download/"
   },
   "awslc": {
     "current": "1.72.0",
     "source": "https://github.com/aws/aws-lc/releases"
   },
-  "last_updated": "2026-04-14T12:23:46Z"
+  "last_updated": "2026-04-24T12:23:38Z"
 }
