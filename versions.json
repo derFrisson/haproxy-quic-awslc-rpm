@@ -4,8 +4,8 @@
     "source": "https://www.haproxy.org/download/"
   },
   "awslc": {
-    "current": "5.1.0",
+    "current": "5.2.0",
     "source": "https://github.com/aws/aws-lc/releases"
   },
-  "last_updated": "2026-07-03T12:40:33Z"
+  "last_updated": "2026-07-16T12:35:19Z"
 }
